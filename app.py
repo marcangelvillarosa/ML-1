@@ -7,16 +7,48 @@ import os
 from model import load_model_and_encoders
 from datetime import datetime
 import pytz
+import gdown
 
 app = Flask(__name__)
 
 # ---------- Config ----------
+MODEL_URL = "https://drive.google.com/uc?id=1nkQknnE7oNd4q5J84qUa10kpAQAzZ_NG"
+ENCODER_URL = "https://drive.google.com/uc?id=17qbNzILSS-nwzc1FVKWkR4BckfcYmrDp"
+DATA_URL = "https://drive.google.com/uc?id=1FigZGutEEUk5WJyeMrr1qmiySZX5ZpcW"
 MODEL_PATH = "model/pujjeepModel.pkl"
 ENCODER_PATH = "model/encoders.pkl"
 DATA_PATH = "data/expandedDataset_with_JeepVolume.csv"
 # ----------------------------
 
+def download_model_files():
+    """Download model and data files from Google Drive if they don't exist"""
+    os.makedirs("model", exist_ok=True)
+    os.makedirs("data", exist_ok=True)
+    
+    if not os.path.exists(MODEL_PATH):
+        print("📥 Downloading model file from Google Drive...")
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+    
+    if not os.path.exists(ENCODER_PATH):
+        print("📥 Downloading encoder file from Google Drive...")
+        gdown.download(ENCODER_URL, ENCODER_PATH, quiet=False)
+    
+    if not os.path.exists(DATA_PATH):
+        print("📥 Downloading data file from Google Drive...")
+        # You need to upload your CSV to Google Drive and get its file ID
+        # Replace YOUR_CSV_FILE_ID with the actual file ID
+        gdown.download(DATA_URL, DATA_PATH, quiet=False)
 
+def load_model_and_encoders(model_path, encoder_path):
+    """Load model and encoders from files"""
+    model = joblib.load(model_path)
+    encoder = joblib.load(encoder_path)
+    return model, encoder
+
+print("📂 Downloading and loading model and data...")
+
+# Download files first
+download_model_files()
 
 print("📂 Loading model and data...")
 
