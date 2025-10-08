@@ -12,27 +12,6 @@ import gdown
 app = Flask(__name__)
 
 # ---------- Config ----------
-# FIXED: Add full Google Drive URLs
-MODEL_URL = "https://drive.google.com/uc?id=1nkQknnE7oNd4q5J84qUa10kpAQAzZ_NG"
-ENCODER_URL = "https://drive.google.com/uc?id=17qbNzILSS-nw
-i just want to use the id
-Perfect! If you want to use just the IDs, here's the corrected code:
-
-python
-from flask import Flask, request, jsonify
-import joblib
-import pandas as pd
-import folium
-from folium.plugins import HeatMap
-import os
-from model import load_model_and_encoders
-from datetime import datetime
-import pytz
-import gdown
-
-app = Flask(__name__)
-
-# ---------- Config ----------
 # Using just file IDs - CORRECT FORMAT
 MODEL_ID = "1nkQknnE7oNd4q5J84qUa10kpAQAzZ_NG"
 ENCODER_ID = "17qbNzILSS-nwzc1FVKWkR4BckfcYmrDp"
