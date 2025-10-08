@@ -4,7 +4,6 @@ import pandas as pd
 import folium
 from folium.plugins import HeatMap
 import os
-from model import load_model_and_encoders
 from datetime import datetime
 import pytz
 import gdown
@@ -25,20 +24,24 @@ DATA_PATH = "data/expandedDataset_with_JeepVolume.csv"
 
 def download_model_files():
     """Download model and data files from Google Drive if they don't exist"""
-    os.makedirs("model", exist_ok=True)
-    os.makedirs("data", exist_ok=True)
-    
-    if not os.path.exists(MODEL_PATH):
-        print("📥 Downloading model file from Google Drive...")
-        gdown.download(f"https://drive.google.com/uc?id={MODEL_ID}", MODEL_PATH, quiet=False)
-    
-    if not os.path.exists(ENCODER_PATH):
-        print("📥 Downloading encoder file from Google Drive...")
-        gdown.download(f"https://drive.google.com/uc?id={ENCODER_ID}", ENCODER_PATH, quiet=False)
-    
-    if not os.path.exists(DATA_PATH):
-        print("📥 Downloading data file from Google Drive...")
-        gdown.download(f"https://drive.google.com/uc?id={DATA_ID}", DATA_PATH, quiet=False)
+    try:
+        os.makedirs("model", exist_ok=True)
+        os.makedirs("data", exist_ok=True)
+        
+        if not os.path.exists(MODEL_PATH):
+            print("📥 Downloading model file from Google Drive...")
+            gdown.download(f"https://drive.google.com/uc?id={MODEL_ID}", MODEL_PATH, quiet=False, fuzzy=True)
+        
+        if not os.path.exists(ENCODER_PATH):
+            print("📥 Downloading encoder file from Google Drive...")
+            gdown.download(f"https://drive.google.com/uc?id={ENCODER_ID}", ENCODER_PATH, quiet=False, fuzzy=True)
+        
+        if not os.path.exists(DATA_PATH):
+            print("📥 Downloading data file from Google Drive...")
+            gdown.download(f"https://drive.google.com/uc?id={DATA_ID}", DATA_PATH, quiet=False, fuzzy=True)
+            
+    except Exception as e:
+        print(f"❌ Download failed: {e}")
 
 def load_model_and_encoders(model_path, encoder_path):
     """Load model and encoders from files"""
@@ -53,11 +56,15 @@ download_model_files()
 
 print("📂 Loading model and data...")
 
-# Load model + encoder + stops
-model, encoder = load_model_and_encoders(MODEL_PATH, ENCODER_PATH)
-stops_df = pd.read_csv(DATA_PATH)[["Stop", "Latitude", "Longitude"]].drop_duplicates()
-
-print("✅ Application ready!")
+# Load model + encoder + stops with error handling
+try:
+    model, encoder = load_model_and_encoders(MODEL_PATH, ENCODER_PATH)
+    stops_df = pd.read_csv(DATA_PATH)[["Stop", "Latitude", "Longitude"]].drop_duplicates()
+    print("✅ Application ready!")
+except Exception as e:
+    print(f"❌ Failed to load model/data: {e}")
+    print("⚠️ Running in limited mode - some features may not work")
+    model, encoder, stops_df = None, None, None
 
 # ---------- FIXED Helper Function ----------
 def safe_transform(df, encoder):
@@ -101,6 +108,9 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    if model is None or encoder is None:
+        return jsonify({"error": "Model not loaded"}), 500
+        
     data = request.get_json()
     try:
         stop = data["Stop"]
@@ -129,6 +139,9 @@ def predict():
 
 @app.route("/heatmap")
 def heatmap():
+    if model is None or encoder is None or stops_df is None:
+        return "Model not loaded - please check server logs", 500
+        
     heat_data = []
     ph_tz = pytz.timezone("Asia/Manila")
     now = datetime.now(ph_tz)
@@ -164,6 +177,12 @@ def heatmap():
 @app.route("/prediction-heatmap", methods=["GET"])
 def prediction_heatmap():
     """Return JSON heatmap data for React Native"""
+    if model is None or encoder is None or stops_df is None:
+        return jsonify({
+            "success": False,
+            "error": "Model not loaded - please check server logs"
+        }), 500
+        
     try:
         ph_tz = pytz.timezone("Asia/Manila")
         now = datetime.now(ph_tz)
