@@ -12,9 +12,9 @@ import gdown
 app = Flask(__name__)
 
 # ---------- Config ----------
-MODEL_URL = "https://drive.google.com/uc?id=1nkQknnE7oNd4q5J84qUa10kpAQAzZ_NG"
-ENCODER_URL = "https://drive.google.com/uc?id=17qbNzILSS-nwzc1FVKWkR4BckfcYmrDp"
-DATA_URL = "https://drive.google.com/uc?id=1FigZGutEEUk5WJyeMrr1qmiySZX5ZpcW"
+MODEL_URL = "1nkQknnE7oNd4q5J84qUa10kpAQAzZ_NG"
+ENCODER_URL = "17qbNzILSS-nwzc1FVKWkR4BckfcYmrDp"
+DATA_URL = "1FigZGutEEUk5WJyeMrr1qmiySZX5ZpcW"
 MODEL_PATH = "model/pujjeepModel.pkl"
 ENCODER_PATH = "model/encoders.pkl"
 DATA_PATH = "data/expandedDataset_with_JeepVolume.csv"
