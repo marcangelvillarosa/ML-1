@@ -8,8 +8,10 @@ from model import load_model_and_encoders
 from datetime import datetime
 import pytz
 import gdown
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app) 
 
 # ---------- Config ----------
 # Using just file IDs - CORRECT FORMAT
